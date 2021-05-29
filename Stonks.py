@@ -8,9 +8,9 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 import xgboost as xgb
 
-data = pd.read_csv(r'C:\Users\giova\AppData\Local\Programs\Python\Python39\Cotação Histórica BTCUSD.csv')
+data = pd.read_csv(r'Cotação Histórica BTCUSD.csv')
 #print(data.tail())
-data2 = pd.read_csv(r'C:\Users\giova\AppData\Local\Programs\Python\Python39\Cotação Histórica ETHUSD.csv')
+data2 = pd.read_csv(r'Cotação Histórica ETHUSD.csv')
 
 data["Date"] = pd.to_datetime(data["Date"])
 data = data.dropna()
