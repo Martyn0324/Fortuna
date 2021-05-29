@@ -8,27 +8,39 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 import xgboost as xgb
 
+#Loading data and checking it out
+
 data = pd.read_csv(r'Cotação Histórica BTCUSD.csv')
-#print(data.tail())
-data2 = pd.read_csv(r'Cotação Histórica ETHUSD.csv')
+print(data.tail())
 
 data["Date"] = pd.to_datetime(data["Date"])
 data = data.dropna()
 
-#fig, ax = plt.subplots()
-#data.plot(x="Date", y="Close", ax=ax)
-#data2.plot(x="Date", y="Close", ax=ax)
-#plt.title("Historical BTC and ETH price (in USD)")
-#plt.show()
+#Plotting the data, just for fun and to see how it works
+
+fig, ax = plt.subplots()
+data.plot(x="Date", y="Close", ax=ax)
+plt.title("Historical BTC price (in USD)")
+plt.show()
+
+#Loading models. DecisionTree and Random Forests because I like them
 
 tree = DecisionTreeRegressor()
+forest = RandomForestRegressor()
 scaler = StandardScaler()
+
+#Now, the samples and features
+
 X = data.drop(["Date", "Close"], axis=1)
 y = data["Close"]
-#print(X)
+print(X)
+
+#Scaling, just to make sure
 
 X_scaled = scaler.fit_transform(X)
-#print(X_scaled)
+print(X_scaled)
+
+#Loading new data, to make sure the models won't overfit
 
 new_data = pd.read_csv(r'Cotação Histórica BTCUSD 2.csv')
 new_data = new_data.dropna()
@@ -37,7 +49,11 @@ y_new = new_data['Close']
 
 X_new_scaled = scaler.fit_transform(X_new)
 
+#Now, the magic begins
+
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.25)
+X_train2, X_test2, y_train2, y_test2 = train_test_split(X, y, test_size=0.25)
+
 tree.fit(X_train, y_train)
 y_pred = tree.predict(X_test)
 print(r2_score(y_test, y_pred))
@@ -51,7 +67,8 @@ print(r2_score(y_test, y_pred2))
 y_pred_new2 = forest.predict(X_new_scaled)
 print(r2_score(y_new, y_pred_new2))
 
-X_train2, X_test2, y_train2, y_test2 = train_test_split(X, y, test_size=0.25)
+#Now, with unscaled data, just to see how it goes
+
 tree.fit(X_train2, y_train2)
 y_pred3 = tree.predict(X_test2)
 print(r2_score(y_test2, y_pred3))
@@ -64,6 +81,7 @@ print(r2_score(y_test2, y_pred4))
 y_pred_new4 = forest.predict(X_new)
 print(r2_score(y_new, y_pred_new4))
 
+#Now, the mighty one, XGBooster
 
 bst = xgb.XGBRegressor()
 bst.fit(X_train2, y_train2)
@@ -77,26 +95,29 @@ print(y_new.tail())
 df = pd.DataFrame(bst_trial, index=y_new)
 print(df)
 
-#bst.fit(X_train, y_train)
-#bst_pred2 = bst.predict(X_test)
-#print(r2_score(y_test, bst_pred2))
+bst.fit(X_train, y_train)
+bst_pred2 = bst.predict(X_test)
+print(r2_score(y_test, bst_pred2))
 
-#bst_trial2 = bst.predict(X_new_scaled)
-#print(r2_score(y_new, bst_trial2))
+bst_trial2 = bst.predict(X_new_scaled)
+print(r2_score(y_new, bst_trial2))
 
+#Plotting the real data and predicted data in order to visually check accuracy
 
 fig, ax = plt.subplots(figsize=(15,5))
-#ax.plot(y_test, color='k', lw=3)
-#ax.plot(y_pred, color='r', lw=2)
-#ax.plot(y_pred2, color='b', lw=1)
-#ax.plot(y_pred3, color='m', lw=0)
-#ax.plot(y_pred4, color='aqua', lw=4)
-#ax.plot(pred_new, color='c', lw=5)
-#ax.plot(pred_new2, color='g', lw=6)
+ax.plot(y_test, color='k', lw=3)
+ax.plot(y_pred, color='r', lw=2)
+ax.plot(y_pred2, color='b', lw=1)
+ax.plot(y_pred3, color='m', lw=0)
+ax.plot(y_pred4, color='aqua', lw=4)
+ax.plot(pred_new, color='c', lw=5)
+ax.plot(pred_new2, color='g', lw=6)
 ax.plot(y_new, color='g')
 ax.plot(bst_trial, color='m')
 ax.legend()
-#plt.show()
+plt.show()
+
+#Insert here today's data in order to predict today's close price
 
 TRIAL = pd.DataFrame({'Open': 35723.18,'High': 37181.09, 'Low':33705.22, 'Adj Close': 34084.70, 'Volume': 47158423552}, index=['Teste'])
 print(TRIAL)
