@@ -30,7 +30,7 @@ y = data["Close"]
 X_scaled = scaler.fit_transform(X)
 #print(X_scaled)
 
-new_data = pd.read_csv(r'C:\Users\giova\AppData\Local\Programs\Python\Python39\Cotação Histórica BTCUSD 2.csv')
+new_data = pd.read_csv(r'Cotação Histórica BTCUSD 2.csv')
 new_data = new_data.dropna()
 X_new = new_data.drop(['Date', 'Close'], axis=1)
 y_new = new_data['Close']
